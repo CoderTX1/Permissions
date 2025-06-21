@@ -41,25 +41,37 @@ class UserResource extends Resource
         ]);
     }
 
-    public static function table(Table $table): Table
-    {
-        return $table
-            ->columns([
-                Tables\Columns\TextColumn::make('name')->searchable(),
-                Tables\Columns\TextColumn::make('email')->searchable(),
-                Tables\Columns\TextColumn::make('email_verified_at')->dateTime()->sortable(),
-                Tables\Columns\TextColumn::make('created_at')->dateTime()->sortable()->toggleable(isToggledHiddenByDefault: true),
-                Tables\Columns\TextColumn::make('updated_at')->dateTime()->sortable()->toggleable(isToggledHiddenByDefault: true),
-            ])
-            ->actions([
-                Tables\Actions\EditAction::make(),
-            ])
-            ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
-                ]),
-            ]);
-    }
+  public static function table(Table $table): Table
+{
+    return $table
+        ->columns([
+            Tables\Columns\TextColumn::make('name')->label('الاسم')->searchable(),
+            Tables\Columns\TextColumn::make('email')->label('البريد الإلكتروني')->searchable(),
+
+            Tables\Columns\TextColumn::make('roles.name')
+                ->label('الأدوار')
+                ->badge()
+                ->colors(['primary'])
+                ->separator(', ')
+                ->sortable(),
+
+            Tables\Columns\TextColumn::make('permissions.name')
+                ->label('الصلاحيات')
+                ->badge()
+                ->colors(['success'])
+                ->separator(', ')
+                ->sortable(),
+
+            Tables\Columns\TextColumn::make('created_at')->label('تاريخ الإنشاء')->dateTime(),
+        ])
+        ->actions([
+            Tables\Actions\EditAction::make(),
+        ])
+        ->bulkActions([
+            Tables\Actions\DeleteBulkAction::make(),
+        ]);
+}
+
 
     public static function getRelations(): array
     {
