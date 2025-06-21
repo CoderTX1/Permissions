@@ -3,17 +3,15 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\UserResource\Pages;
-use App\Filament\Resources\UserResource\RelationManagers;
 use App\Models\User;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
-use Illuminate\Database\Eloquent\Model; 
-use Spatie\Permission\Models\Role;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Hash;
+
 class UserResource extends Resource
 {
     protected static ?string $model = User::class;
@@ -22,45 +20,36 @@ class UserResource extends Resource
 
     public static function form(Form $form): Form
     {
-        return $form
-            ->schema([
-                Forms\Components\TextInput::make('name')
-                    ->required()
-                    ->maxLength(255),
-                Forms\Components\TextInput::make('email')
-                    ->email()
-                    ->required()
-                    ->maxLength(255),
-                Forms\Components\DateTimePicker::make('email_verified_at'),
-                Forms\Components\TextInput::make('password')
-                    ->password()
-                    ->required()
-                    ->maxLength(255),
-            ]);
+        return $form->schema([
+            Forms\Components\TextInput::make('name')
+                ->required()
+                ->maxLength(255),
+
+            Forms\Components\TextInput::make('email')
+                ->email()
+                ->required()
+                ->maxLength(255),
+
+            Forms\Components\DateTimePicker::make('email_verified_at'),
+
+            Forms\Components\TextInput::make('password')
+                ->password()
+                ->maxLength(255)
+                ->dehydrateStateUsing(fn ($state) => filled($state) ? Hash::make($state) : null)
+                ->required(fn (string $context) => $context === 'create')
+                ->label('Password'),
+        ]);
     }
 
     public static function table(Table $table): Table
     {
         return $table
             ->columns([
-                Tables\Columns\TextColumn::make('name')
-                    ->searchable(),
-                Tables\Columns\TextColumn::make('email')
-                    ->searchable(),
-                Tables\Columns\TextColumn::make('email_verified_at')
-                    ->dateTime()
-                    ->sortable(),
-                Tables\Columns\TextColumn::make('created_at')
-                    ->dateTime()
-                    ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
-                Tables\Columns\TextColumn::make('updated_at')
-                    ->dateTime()
-                    ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
-            ])
-            ->filters([
-                //
+                Tables\Columns\TextColumn::make('name')->searchable(),
+                Tables\Columns\TextColumn::make('email')->searchable(),
+                Tables\Columns\TextColumn::make('email_verified_at')->dateTime()->sortable(),
+                Tables\Columns\TextColumn::make('created_at')->dateTime()->sortable()->toggleable(isToggledHiddenByDefault: true),
+                Tables\Columns\TextColumn::make('updated_at')->dateTime()->sortable()->toggleable(isToggledHiddenByDefault: true),
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),
@@ -74,42 +63,40 @@ class UserResource extends Resource
 
     public static function getRelations(): array
     {
-        return [
-            //
-        ];
+        return [];
     }
-public static function canViewAny(): bool
-{
-    $user = auth()->user();
-    $role = session('active_role');
 
-    return $user && $role && $user->hasRole($role) && $user->hasPermissionTo('view_user');
-}
+    /**
+     * التحقق من أن المستخدم لديه صلاحية بناءً على الدور النشط
+     */
+// protected static function hasPermission(string $permission): bool
+// {
+//     $user = auth()->user();
+//     $role = session('active_role');
 
-public static function canCreate(): bool
-{
-    $user = auth()->user();
-    $role = session('active_role');
+//     return $user && $role && $user->hasRole($role) && $user->hasPermissionTo($permission);
+// }
 
-    return $user && $role && $user->hasRole($role) && $user->hasPermissionTo('create_user');
-}
 
-public static function canEdit(Model $record): bool
-{
-    $user = auth()->user();
-    $role = session('active_role');
+//     public static function canViewAny(): bool
+//     {
+//         return static::hasPermission('view_user');
+//     }
 
-    return $user && $role && $user->hasRole($role) && $user->hasPermissionTo('edit_user');
-}
+//     public static function canCreate(): bool
+//     {
+//         return static::hasPermission('create_user');
+//     }
 
-public static function canDelete(Model $record): bool
-{
-    $user = auth()->user();
-    $role = session('active_role');
+//     public static function canEdit(Model $record): bool
+//     {
+//         return static::hasPermission('edit_user');
+//     }
 
-    return $user && $role && $user->hasRole($role) && $user->hasPermissionTo('delete_user');
-}
-
+//     public static function canDelete(Model $record): bool
+//     {
+//         return static::hasPermission('delete_user');
+//     }
 
     public static function getPages(): array
     {
