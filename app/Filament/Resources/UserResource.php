@@ -18,28 +18,43 @@ class UserResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
 
-    public static function form(Form $form): Form
-    {
-        return $form->schema([
-            Forms\Components\TextInput::make('name')
-                ->required()
-                ->maxLength(255),
+ public static function form(Form $form): Form
+{
+    return $form->schema([
+        Forms\Components\TextInput::make('name')
+            ->required()
+            ->maxLength(255),
 
-            Forms\Components\TextInput::make('email')
-                ->email()
-                ->required()
-                ->maxLength(255),
+        Forms\Components\TextInput::make('email')
+            ->email()
+            ->required()
+            ->maxLength(255),
 
-            Forms\Components\DateTimePicker::make('email_verified_at'),
+        Forms\Components\DateTimePicker::make('email_verified_at'),
 
-            Forms\Components\TextInput::make('password')
-                ->password()
-                ->maxLength(255)
-                ->dehydrateStateUsing(fn ($state) => filled($state) ? Hash::make($state) : null)
-                ->required(fn (string $context) => $context === 'create')
-                ->label('Password'),
-        ]);
-    }
+        Forms\Components\TextInput::make('password')
+            ->password()
+            ->maxLength(255)
+            ->dehydrateStateUsing(fn ($state) => filled($state) ? \Hash::make($state) : null)
+            ->required(fn (string $context) => $context === 'create')
+            ->label('كلمة المرور'),
+
+        Forms\Components\Select::make('roles')
+            ->label('الأدوار')
+            ->multiple()
+            ->relationship('roles', 'name')
+            ->preload()
+            ->searchable(),
+
+        Forms\Components\Select::make('permissions')
+            ->label('الصلاحيات')
+            ->multiple()
+            ->relationship('permissions', 'name')
+            ->preload()
+            ->searchable(),
+    ]);
+}
+
 
   public static function table(Table $table): Table
 {
