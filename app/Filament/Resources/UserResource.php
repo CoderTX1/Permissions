@@ -11,7 +11,8 @@ use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Hash;
-
+use Spatie\Permission\Models\Permission;
+use Spatie\Permission\Models\Role;
 class UserResource extends Resource
 {
     protected static ?string $model = User::class;
@@ -93,37 +94,47 @@ class UserResource extends Resource
         return [];
     }
 
-    /**
-     * التحقق من أن المستخدم لديه صلاحية بناءً على الدور النشط
-     */
-// protected static function hasPermission(string $permission): bool
+// public static function canAccess(): bool
 // {
-//     $user = auth()->user();
-//     $role = session('active_role');
-
-//     return $user && $role && $user->hasRole($role) && $user->hasPermissionTo($permission);
+//     return auth()->check()
+//         && (
+//             auth()->user()->hasAnyRole(['super_admin', 'admin']) ||
+//             auth()->user()->hasAnyPermission(['view_any_user', 'browse_users'])
+//         );
 // }
 
 
-//     public static function canViewAny(): bool
-//     {
-//         return static::hasPermission('view_user');
-//     }
 
-//     public static function canCreate(): bool
-//     {
-//         return static::hasPermission('create_user');
+// public static function canAccess(): bool
+// {
+//     if (! auth()->check()) {
+//         return false;
 //     }
+//     $allPermissions = Permission::pluck('name')->toArray();
 
-//     public static function canEdit(Model $record): bool
-//     {
-//         return static::hasPermission('edit_user');
-//     }
+//     // التأكد أن المستخدم لديه أي صلاحية من هذه
+//     return auth()->user()->hasAnyRole(['super_admin', 'admin'])
+//         || auth()->user()->hasAnyPermission($allPermissions);
+// }
 
-//     public static function canDelete(Model $record): bool
-//     {
-//         return static::hasPermission('delete_user');
-//     }
+
+
+public static function canAccess(): bool
+{
+    if (! auth()->check()) {
+        return false;
+    }
+
+    // جميع الأدوار من قاعدة البيانات
+    $allRoles = Role::pluck('name')->toArray();
+
+    // جميع الصلاحيات من قاعدة البيانات
+    $allPermissions = Permission::pluck('name')->toArray();
+
+    return auth()->user()->hasAnyRole($allRoles)
+        || auth()->user()->hasAnyPermission($allPermissions);
+}
+
 
     public static function getPages(): array
     {

@@ -53,6 +53,10 @@ class PermissionResource extends Resource
     {
         return [];
     }
+    public static function canAccess(): bool
+{
+    return auth()->check() && auth()->user()->hasRole('super_admin');
+}
 
     public static function getPages(): array
     {

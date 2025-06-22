@@ -15,7 +15,7 @@ class ChooseRole extends Page implements Forms\Contracts\HasForms
     protected static string $view = 'filament.pages.choose-role';
     protected static ?string $navigationLabel = 'اختيار الدور';
     protected static ?string $title = 'اختيار الدور';
-
+   protected static bool $shouldRegisterNavigation = false;
     public ?string $role = null;
 
     public function mount(): void

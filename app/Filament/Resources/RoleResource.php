@@ -2,36 +2,35 @@
 
 namespace App\Filament\Resources;
 
+use App\Filament\Resources\RoleResource\Pages;
+use Spatie\Permission\Models\Role;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
-use Spatie\Permission\Models\Role;
-use App\Filament\Resources\RoleResource\Pages;
-use Spatie\Permission\Models\Permission;
-use Filament\Forms\Components\CheckboxList;
 
 class RoleResource extends Resource
 {
     protected static ?string $model = Role::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-key';
+    protected static ?string $navigationIcon = 'heroicon-o-shield-check';
     protected static ?string $navigationLabel = 'الأدوار';
-    protected static ?string $label = 'الدور';
     protected static ?string $pluralLabel = 'الأدوار';
-    protected static ?string $navigationGroup = 'إدارة الوصول';
+    protected static ?string $modelLabel = 'دور';
 
     public static function form(Form $form): Form
     {
         return $form
             ->schema([
-                Forms\Components\TextInput::make('name')->label('اسم الدور')->required(),
+                Forms\Components\TextInput::make('name')
+                    ->label('اسم الدور')
+                    ->required(),
 
-                CheckboxList::make('permissions')
-                    ->label('الصلاحيات')
-                    ->relationship('permissions', 'name')
-                    ->columns(2),
+                Forms\Components\TextInput::make('guard_name')
+                    ->default('web')
+                    ->required()
+                    ->label('نوع الحارس'),
             ]);
     }
 
@@ -39,8 +38,9 @@ class RoleResource extends Resource
     {
         return $table
             ->columns([
-                Tables\Columns\TextColumn::make('name')->label('اسم الدور'),
-                Tables\Columns\TextColumn::make('permissions.name')->label('الصلاحيات')->limit(3)->separator(', '),
+                Tables\Columns\TextColumn::make('name')->label('الاسم'),
+                Tables\Columns\TextColumn::make('guard_name')->label('الحارس'),
+                Tables\Columns\TextColumn::make('created_at')->label('تاريخ الإنشاء')->dateTime(),
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),
@@ -59,4 +59,3 @@ class RoleResource extends Resource
         ];
     }
 }
-
