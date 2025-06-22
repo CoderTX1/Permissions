@@ -60,6 +60,7 @@ class UserResource extends Resource
   public static function table(Table $table): Table
 {
     return $table
+   
         ->columns([
             Tables\Columns\TextColumn::make('name')->label('الاسم')->searchable(),
             Tables\Columns\TextColumn::make('email')->label('البريد الإلكتروني')->searchable(),
@@ -119,21 +120,28 @@ class UserResource extends Resource
 
 
 
+// public static function canAccess(): bool
+// {
+//     if (! auth()->check()) {
+//         return false;
+//     }
+
+//     // جميع الأدوار من قاعدة البيانات
+//     $allRoles = Role::pluck('name')->toArray();
+
+//     // جميع الصلاحيات من قاعدة البيانات
+//     $allPermissions = Permission::pluck('name')->toArray();
+
+//     return auth()->user()->hasAnyRole($allRoles)
+//         || auth()->user()->hasAnyPermission($allPermissions);
+// }
+
 public static function canAccess(): bool
 {
-    if (! auth()->check()) {
-        return false;
-    }
-
-    // جميع الأدوار من قاعدة البيانات
-    $allRoles = Role::pluck('name')->toArray();
-
-    // جميع الصلاحيات من قاعدة البيانات
-    $allPermissions = Permission::pluck('name')->toArray();
-
-    return auth()->user()->hasAnyRole($allRoles)
-        || auth()->user()->hasAnyPermission($allPermissions);
+    return auth()->check() && auth()->user()->can('view_any_user');
 }
+
+
 
 
     public static function getPages(): array

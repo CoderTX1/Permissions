@@ -36,7 +36,7 @@
                 <div class="text-center mb-4">
                     <h2 class="text-2xl font-bold">اختيار الدور</h2>
                 </div>
-
+     
                 {{ $this->form }}
 
                 <div class="flex justify-center mt-4">
